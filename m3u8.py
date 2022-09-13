@@ -2,11 +2,9 @@
 import multiprocessing
 import os
 import re
-
-import pathlib2
 import urllib3
 
-http = urllib3.PoolManager()
+http = urllib3.PoolManager(timeout=6.0)
 
 
 class M3U8(object):
@@ -20,7 +18,9 @@ class M3U8(object):
         self.episode_dir_name = episode_dir_name
         self.index = index
         r = http.request("get", url, headers={"referer": "https://www.gq1000.com/"})
+        print(r.status)
         self.content = r.data.decode("utf-8")
+        # TODO 根据内容是否包含 #EXT-X-STREAM-INF 标签，如果有，证明是顶级m3u8文件，包含各种码率的二级m3u8文件地址，选择最高码率，再重新获取一次内容
         self.get_slice_url()
         self.get_dir_path()
 

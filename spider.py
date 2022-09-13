@@ -1,4 +1,6 @@
 # -*- encoding=utf-8 -*-
+import os
+
 from browsermobproxy import Server
 
 from webDriver import create_driver
@@ -35,7 +37,19 @@ def get_video_url(base_url):
                 video_url = _url
                 break
     finally:
+        server_port = server.port
         server.stop()
         driver.quit()
+        # 关闭进程中的java进程
+        find_port = 'netstat -aon|findstr %s' % server_port
+        result = os.popen(find_port)
+        text = result.read()
+        pid_line = text.split('\n', 1)[0]
+        pid = pid_line.replace(" ", "").split("LISTENING")[1]
+        find_kill = 'taskkill -f -pid %s' % pid
+        result = os.popen(find_kill)
+        cmd = result.read()
+        print(cmd)
+        result.close()
 
     return video_url

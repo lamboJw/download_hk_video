@@ -14,6 +14,7 @@ output_filename = None
 def download_video(url):
     global cur_video_url, dir_path, output_filename
     video_url = get_video_url(url)
+    print(video_url)
     if video_url is None:
         raise AttributeError("获取m3u8链接失败")
     info = urlparse(video_url)
@@ -24,9 +25,10 @@ def download_video(url):
     episode_dir_name = os.path.join(dir_path,
                                     output_filename + "-" + ("0" if cur_episode < 10 else "") + str(cur_episode))
     for i in range(1, len(query_url) - 3):
-        m3u8_obj = M3U8(query_url[i], episode_dir_name, i - 1)
-        m3u8_obj.download_slice()
-        m3u8_obj.combine_video()
+        if query_url[i].__len__() > 0:
+            m3u8_obj = M3U8(query_url[i], episode_dir_name, i - 1)
+            m3u8_obj.download_slice()
+            m3u8_obj.combine_video()
     os.rmdir(episode_dir_name)
     if cur_video_url != query_url[0]:
         cur_video_url = query_url[0]
