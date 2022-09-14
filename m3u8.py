@@ -6,6 +6,7 @@ import urllib3
 from urllib.parse import urlparse
 from threading import Thread
 
+# TODO 多进程下载任务，为每个进程单独创建连接池
 http = urllib3.PoolManager(timeout=6.0)
 download_type = "thread"  # thread 或 normal
 

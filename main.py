@@ -10,6 +10,7 @@ cur_video_url = None
 output_path = None
 output_filename = None
 
+# TODO 创建配置模块，读取配置，不需要每次都修改代码
 
 def download_video(url):
     global cur_video_url, output_path
