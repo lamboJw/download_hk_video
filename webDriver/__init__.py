@@ -1,7 +1,7 @@
 # -*- encoding=utf-8 -*-
 import os
 import sys
-from base_path import BASE_PATH
+from base_path import get_base_path
 from selenium.webdriver import DesiredCapabilities
 
 if sys.platform.startswith('win'):
@@ -32,7 +32,7 @@ def create_driver(browser_type='chrome', proxy=None):
         desired_capabilities["pageLoadStrategy"] = 'eager'
         return webdriver.Chrome(
             executable_path=os.path.join(
-                BASE_PATH, "webDriver", system, 'chromedriver' + ('.exe' if system == 'win' else '')),
+                get_base_path(), "webDriver", system, 'chromedriver' + ('.exe' if system == 'win' else '')),
             options=options,
             desired_capabilities=desired_capabilities
         )
@@ -44,7 +44,7 @@ def create_driver(browser_type='chrome', proxy=None):
         desired_capabilities = DesiredCapabilities.EDGE
         desired_capabilities["pageLoadStrategy"] = 'eager'
         return Edge(
-            executable_path=os.path.join(os.path.dirname(__file__), 'win', 'msedgedriver.exe'),
+            executable_path=os.path.join(get_base_path(), "webDriver", 'win', 'msedgedriver.exe'),
             options=options,
             desired_capabilities=desired_capabilities
         )
