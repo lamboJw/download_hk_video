@@ -2,8 +2,6 @@
 import os.path
 from urllib.parse import urlparse, parse_qs
 from spider import get_video_url
-import getopt
-import sys
 from m3u8 import M3U8
 
 cur_video_url = None
@@ -35,31 +33,16 @@ def download_video(url):
 
 
 if __name__ == "__main__":
-    opts, args = getopt.getopt(sys.argv[1:], "hu:o:", ["help", "url=", "output="])
-    base_url = None
-    output_filename = None
-    for opt, arg in opts:
-        if opt == "-h" or opt == "--help":
-            print("-u 或--url 传入要下载的剧集，-o 或 --output 传入剧集名称，然后就会自动下载整个剧集到项目目录中的output文件夹")
-        elif opt == "-u":
-            if arg.startswith("="):
-                base_url = arg[1:]
-            else:
-                base_url = arg
-        elif opt == "--url":
-            base_url = arg
-        elif opt == "-o":
-            if arg.startswith("="):
-                output_filename = arg[1:]
-            else:
-                output_filename = arg
-        elif opt == "--output":
-            output_filename = arg
+    base_url = input("请输入要下载电视剧的第一集链接：")
+    while base_url.__len__() == 0 or not base_url.startswith("https://www.gq1000.com"):
+        if base_url.__len__() == 0:
+            base_url = input("请输入要下载电视剧的第一集链接：")
         else:
-            continue
+            base_url = input("电视剧链接必须是 https://www.gq1000.com 网站中的链接：")
 
-    if base_url is None or output_filename is None:
-        raise ValueError("必须传入请求的地址和保存的文件名")
+    output_filename = input("请输入电视剧名称：")
+    while output_filename is None or output_filename.__len__() == 0:
+        output_filename = input("请输入电视剧名称：")
 
     base_url_info = urlparse(base_url)
     cur_video_url = base_url_info.path
