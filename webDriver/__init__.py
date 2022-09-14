@@ -1,7 +1,7 @@
 # -*- encoding=utf-8 -*-
 import os
 import sys
-
+from base_path import BASE_PATH
 from selenium.webdriver import DesiredCapabilities
 
 if sys.platform.startswith('win'):
@@ -32,7 +32,7 @@ def create_driver(browser_type='chrome', proxy=None):
         desired_capabilities["pageLoadStrategy"] = 'eager'
         return webdriver.Chrome(
             executable_path=os.path.join(
-                os.path.dirname(__file__), system, 'chromedriver' + ('.exe' if system == 'win' else '')),
+                BASE_PATH, "webDriver", system, 'chromedriver' + ('.exe' if system == 'win' else '')),
             options=options,
             desired_capabilities=desired_capabilities
         )

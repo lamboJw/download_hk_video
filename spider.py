@@ -2,7 +2,7 @@
 import os
 
 from browsermobproxy import Server
-
+from selenium.webdriver.common.by import By
 from webDriver import create_driver
 
 driver_type = "chrome"
@@ -13,6 +13,7 @@ def get_video_url(base_url):
     server = None
     driver = None
     video_url = None
+    video_name = None
     try:
         server = Server(r'.\lib\browsermob-proxy-2.1.4\bin\browsermob-proxy.bat', options={"port": proxy_port})
         server.start()
@@ -26,6 +27,8 @@ def get_video_url(base_url):
             if _url.find("dplayer.html") != -1:
                 video_url = _url
                 break
+        title_a = driver.find_element(by=By.CSS_SELECTOR, value="h1.title a:last-child")
+        video_name = title_a.text
     except Exception as e:
         print(e)
     finally:
@@ -46,4 +49,4 @@ def get_video_url(base_url):
             print(cmd)
         result.close()
 
-    return video_url
+    return video_url, video_name
