@@ -3,6 +3,8 @@ import multiprocessing
 import os
 import re
 import urllib3
+from urllib.parse import urlparse
+from threading import Thread
 
 http = urllib3.PoolManager(timeout=6.0)
 
@@ -13,19 +15,31 @@ class M3U8(object):
     content = None
     slice_list = []
     dir_path = None
+    m3u8_host = None
 
     def __init__(self, url, episode_dir_name, index):
+        url_info = urlparse(url)
+        self.m3u8_host = url_info.scheme + "://" + url_info.netloc
         self.episode_dir_name = episode_dir_name
         self.index = index
         r = http.request("get", url, headers={"referer": "https://www.gq1000.com/"})
-        print(r.status)
         self.content = r.data.decode("utf-8")
-        # TODO 根据内容是否包含 #EXT-X-STREAM-INF 标签，如果有，证明是顶级m3u8文件，包含各种码率的二级m3u8文件地址，选择最高码率，再重新获取一次内容
+        result = re.findall(r"#EXT-X-STREAM-INF:.*?BANDWIDTH=(\d*).*?\n(.*?)\n", self.content)
+        if result.__len__() > 0:
+            max_m3u8_url = ""
+            max_bandwidth = ""
+            for item in result:
+                if item[0] > max_bandwidth:
+                    max_m3u8_url = item[1]
+            if not max_m3u8_url.startswith("http"):
+                max_m3u8_url = self.m3u8_host + max_m3u8_url
+            r = http.request("get", max_m3u8_url, headers={"referer": "https://www.gq1000.com/"})
+            self.content = r.data.decode("utf-8")
         self.get_slice_url()
         self.get_dir_path()
 
     def get_slice_url(self):
-        self.slice_list = re.findall(r'https?:\/\/.*', self.content)
+        self.slice_list = re.findall(r'#EXTINF:\d*\.?\d*?,\n(.*?)\n', self.content)
 
     def get_dir_path(self):
         if self.dir_path is None:
@@ -47,7 +61,7 @@ class M3U8(object):
             if end > max_index:
                 end = -1
             url_list = self.slice_list[start:end]
-            pool.apply_async(func=_do_download, args=(start, url_list, self.dir_path))
+            pool.apply_async(func=_do_download, args=(start, url_list, self.dir_path, self.m3u8_host))
             i = i + step
         pool.close()
         pool.join()
@@ -66,10 +80,22 @@ class M3U8(object):
         os.rmdir(self.dir_path)
 
 
-def _do_download(start, url_list, dir_path):
+def _do_download(start, url_list, dir_path, host):
+    threads = []
     for i in range(len(url_list)):
         url = url_list[i]
-        with open(os.path.join(dir_path, str(i + start)), 'wb') as f:
-            result = http.request('get', url)
-            if result.status == 200:
-                f.write(result.data)
+        if not url.startswith("http"):
+            url = host + url
+        thread = Thread(target=_thread_download, args=(url, os.path.join(dir_path, str(i + start))))
+        threads.append(thread)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+
+def _thread_download(url, dir_path):
+    with open(dir_path, 'wb') as f:
+        result = http.request('get', url)
+        if result.status == 200:
+            f.write(result.data)

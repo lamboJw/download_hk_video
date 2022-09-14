@@ -37,10 +37,8 @@ def download_video(url):
 
 if __name__ == "__main__":
     opts, args = getopt.getopt(sys.argv[1:], "hu:o:", ["help", "url=", "output="])
-
     base_url = None
     output_filename = None
-
     for opt, arg in opts:
         if opt == "-h" or opt == "--help":
             print("-u 或--url 传入要下载的剧集，-o 或 --output 传入剧集名称，然后就会自动下载整个剧集到项目目录中的output文件夹")

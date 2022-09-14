@@ -30,8 +30,6 @@ def create_driver(browser_type='chrome', proxy=None):
         options = set_options(options, proxy)
         desired_capabilities = DesiredCapabilities.CHROME
         desired_capabilities["pageLoadStrategy"] = 'eager'
-        print(os.path.join(
-            os.path.dirname(__file__), system, 'chromedriver' + ('.exe' if system == 'win' else '')))
         return webdriver.Chrome(
             executable_path=os.path.join(
                 os.path.dirname(__file__), system, 'chromedriver' + ('.exe' if system == 'win' else '')),
