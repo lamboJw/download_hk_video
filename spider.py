@@ -5,16 +5,19 @@ from browsermobproxy import Server
 
 from webDriver import create_driver
 
+driver_type = "chrome"
+proxy_port = 8089
+
 
 def get_video_url(base_url):
     server = None
     driver = None
     video_url = None
     try:
-        server = Server(r'.\lib\browsermob-proxy-2.1.4\bin\browsermob-proxy.bat', options={"port": 8089})
+        server = Server(r'.\lib\browsermob-proxy-2.1.4\bin\browsermob-proxy.bat', options={"port": proxy_port})
         server.start()
         proxy = server.create_proxy()
-        driver = create_driver("chrome", proxy.proxy)
+        driver = create_driver(driver_type, proxy.proxy)
         proxy.new_har("hk_video", options={'captureHeaders': True, 'captureContent': True})
         driver.get(base_url)
         result = proxy.har

@@ -14,7 +14,6 @@ output_filename = None
 def download_video(url):
     global cur_video_url, dir_path, output_filename
     video_url = get_video_url(url)
-    print(video_url)
     if video_url is None:
         raise AttributeError("获取m3u8链接失败")
     info = urlparse(video_url)
