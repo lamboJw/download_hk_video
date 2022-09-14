@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from threading import Thread
 
 http = urllib3.PoolManager(timeout=6.0)
+download_type = "thread"  # thread 或 normal
 
 
 class M3U8(object):
@@ -53,7 +54,7 @@ class M3U8(object):
     def download_slice(self):
         pool = multiprocessing.Pool(4)
         i = 0
-        step = 10
+        step = 20
         max_index = self.slice_list.__len__() - 1
         while i < self.slice_list.__len__():
             start = i
@@ -86,12 +87,19 @@ def _do_download(start, url_list, dir_path, host):
         url = url_list[i]
         if not url.startswith("http"):
             url = host + url
-        thread = Thread(target=_thread_download, args=(url, os.path.join(dir_path, str(i + start))))
-        threads.append(thread)
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
+        if download_type == "normal":
+            with open(os.path.join(dir_path, str(i + start)), 'wb') as f:
+                result = http.request('get', url)
+                if result.status == 200:
+                    f.write(result.data)
+        else:
+            thread = Thread(target=_thread_download, args=(url, os.path.join(dir_path, str(i + start))))
+            threads.append(thread)
+    if threads.__len__() > 0:
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
 
 
 def _thread_download(url, dir_path):
