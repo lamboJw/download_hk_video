@@ -4,9 +4,10 @@ import os
 from browsermobproxy import Server
 from selenium.webdriver.common.by import By
 from webDriver import create_driver
+from config import get_config
 
-driver_type = "chrome"
-proxy_port = 8089
+driver_type = get_config("driver_type", "chrome")
+proxy_port = get_config("proxy_port", 8089)
 
 
 def get_video_url(base_url):

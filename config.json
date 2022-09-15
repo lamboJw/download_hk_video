@@ -1,0 +1,6 @@
+{
+  "driver_type": "chrome",
+  "proxy_port": 8089,
+  "slice_download_type": "thread",
+  "http_request_timeout": 6.0
+}

@@ -5,10 +5,10 @@ import re
 import urllib3
 from urllib.parse import urlparse
 from threading import Thread
+from config import get_config
 
-# TODO 多进程下载任务，为每个进程单独创建连接池
-http = urllib3.PoolManager(timeout=6.0)
-download_type = "thread"  # thread 或 normal
+download_type = get_config("slice_download_type", "thread")  # thread 或 normal
+timeout = get_config("http_request_timeout", 6.0)
 
 
 class M3U8(object):
@@ -24,6 +24,7 @@ class M3U8(object):
         self.m3u8_host = url_info.scheme + "://" + url_info.netloc
         self.episode_dir_name = episode_dir_name
         self.index = index
+        http = urllib3.PoolManager(timeout=timeout)
         r = http.request("get", url, headers={"referer": "https://www.gq1000.com/"})
         self.content = r.data.decode("utf-8")
         result = re.findall(r"#EXT-X-STREAM-INF:.*?BANDWIDTH=(\d*).*?\n(.*?)\n", self.content)
@@ -83,6 +84,7 @@ class M3U8(object):
 
 
 def _do_download(start, url_list, dir_path, host):
+    http = urllib3.PoolManager(timeout=timeout)
     threads = []
     for i in range(len(url_list)):
         url = url_list[i]
@@ -94,7 +96,7 @@ def _do_download(start, url_list, dir_path, host):
                 if result.status == 200:
                     f.write(result.data)
         else:
-            thread = Thread(target=_thread_download, args=(url, os.path.join(dir_path, str(i + start))))
+            thread = Thread(target=_thread_download, args=(http, url, os.path.join(dir_path, str(i + start))))
             threads.append(thread)
     if threads.__len__() > 0:
         for t in threads:
@@ -103,7 +105,7 @@ def _do_download(start, url_list, dir_path, host):
             t.join()
 
 
-def _thread_download(url, dir_path):
+def _thread_download(http, url, dir_path):
     with open(dir_path, 'wb') as f:
         result = http.request('get', url)
         if result.status == 200:
