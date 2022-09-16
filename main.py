@@ -43,7 +43,7 @@ def download_video(url):
 if __name__ == "__main__":
     multiprocessing.freeze_support()  # 多进程打包成exe时，需要添加这行
     try:
-        base_url = input("请输入要下载电视剧的第一集链接：")
+        base_url = input("请输入要下载电视剧的播放页链接：")
         while base_url.__len__() == 0 or not base_url.startswith("https://www.gq1000.com"):
             if base_url.__len__() == 0:
                 base_url = input("请输入要下载电视剧的第一集链接：")
