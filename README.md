@@ -4,9 +4,9 @@ https://www.gq1000.com/
 ## 环境需求
 1. python 3.9，使用anaconda比较方便，无需额外安装太多扩展，只需要额外安装以下两个插件即可：
    1. selenium
-   2. browsermob-proxy
+   2. [browsermob-proxy](https://github.com/lightbody/browsermob-proxy/)
 2. java 8
-3. chrome 或 新版微软Edge
+3. chrome 或 微软Edge
     
 ## 检查浏览器版本和webDriver版本是否匹配
 浏览器版本必须与webDriver版本匹配，否则会打开浏览器失败。 当前webDriver版本：
