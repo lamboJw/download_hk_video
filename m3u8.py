@@ -54,9 +54,9 @@ class M3U8(object):
             self.dir_path = index_path
 
     def download_slice(self):
-        pool = multiprocessing.Pool(4)
+        pool = multiprocessing.Pool(get_config("process_count", 4))
         i = 0
-        step = 20
+        step = get_config("slice_count_every_process", 20)
         max_index = self.slice_list.__len__() - 1
         while i < self.slice_list.__len__():
             start = i
@@ -91,10 +91,7 @@ def _do_download(start, url_list, dir_path, host):
         if not url.startswith("http"):
             url = host + url
         if download_type == "normal":
-            with open(os.path.join(dir_path, str(i + start)), 'wb') as f:
-                result = http.request('get', url)
-                if result.status == 200:
-                    f.write(result.data)
+            _thread_download(http, url, os.path.join(dir_path, str(i + start)))
         else:
             thread = Thread(target=_thread_download, args=(http, url, os.path.join(dir_path, str(i + start))))
             threads.append(thread)
